@@ -46,7 +46,7 @@ from time import timezone, strftime, localtime, gmtime
 import os, sys, re, shutil, uuid, hashlib, mimetypes, base64, socket
 
 # Debug message ( True / False )
-sys_debug = False
+sys_debug = True
 
 
 # get localhost IP address
@@ -103,6 +103,8 @@ class FileMember(Member):
             p['getcontentlength'] = st.st_size
             p['getcontenttype'], z = mimetypes.guess_type(self.name)
             p['getcontentlanguage'] = None
+            if self.name.endswith('.mp4'):
+                p['getcontentlength'] = 271183818
         else:  # Member.M_COLLECTION
             p['resourcetype'] = '<D:collection/>'
         if self.name[0] == ".":
@@ -481,7 +483,7 @@ class DAVRequestHandler(BaseHTTPRequestHandler):
             return
         self.send_response(200, DAVRequestHandler.server_version)
         self.send_header('Allow',
-                         'GET, HEAD, POST, PUT, DELETE, OPTIONS, PROPFIND, PROPPATCH, MKCOL, LOCK, UNLOCK, MOVE, COPY')
+                         'GET, HEAD, POST, PUT, DELETE, OPTIONS, PROPFIND, PROPPATCH, MKCOL, MOVE, COPY')
         self.send_header('Content-length', '0')
         self.send_header('X-Server-Copyright', DAVRequestHandler.server_version)
         self.send_header('DAV', '1, 2')  # OSX Finder need Ver 2, if Ver 1 -- read only
@@ -685,6 +687,12 @@ class DAVRequestHandler(BaseHTTPRequestHandler):
         if self.WebAuth():
             return
         path, elem = self.path_elem()
+        if elem.name.endswith('.mp4'):
+            self.send_response(302)
+            self.send_header("Location", "https://nstar-file-test.oss-cn-shenzhen.aliyuncs.com/video/aea7be3023d3441e991130b30ccb9bc2.mp4?Expires=1718699975&OSSAccessKeyId=LTAI5tKTiW7WPqcT6HV8773T&Signature=PPQOEX6uH0WLC8Fup%2FdWF2ZMeo4%3D&response-content-disposition=attachment%3Bfilename%3D%25E9%25AB%2598%25E6%25B8%2585%25E5%2590%258E%25E8%25A7%2586%25E9%25A2%2591.mp4%3Bfilename%2A%3DUTF-8%27%27%25E9%25AB%2598%25E6%25B8%2585%25E5%2590%258E%25E8%25A7%2586%25E9%25A2%2591.mp4")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
         if not elem:
             self.send_error(404, 'Object not found')
             return
