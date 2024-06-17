@@ -320,7 +320,7 @@ def run():
 
     logging.getLogger().setLevel(LEVELS[loglevel])
 
-    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+    formatter = logging.Formatter('[%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s','%m-%d %H:%M:%S')
     for handler in logging.getLogger().handlers:
         handler.setFormatter(formatter)
 

@@ -229,6 +229,12 @@ class DAVRequestHandler(AuthServer.AuthRequestHandler, LockManager):
 
         headers = {}
 
+        if uri.endswith(".txt"):
+            self.send_response(302)
+            self.send_header("Location", "https://raw.githubusercontent.com/trentfreeman/hello-world/master/README.md")
+            self.end_headers()
+            return 302
+
         # get the last modified date (RFC 1123!)
         try:
             headers['Last-Modified'] = dc.get_prop(
